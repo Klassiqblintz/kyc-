@@ -1,0 +1,24 @@
+# Build output
+build/
+*/build/
+.gradle/
+out/
+
+# Local toolchain / SDK archives (huge, machine-specific)
+gradle-8.4/
+sdk-extract/
+*.zip
+local.properties
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+*.log
+.attachments/

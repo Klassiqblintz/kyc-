@@ -1,0 +1,76 @@
+===========================================
+KYC Bypass Suite - APK Build Instructions
+===========================================
+
+PROJECT LOCATION:
+/data/user/0/com.imtaqin.andropi/files/home/workspace/New-Kyc/
+
+CURRENT STATUS:
+- All source files created ✓
+- ML models downloaded ✓
+- Gradle 8.4 installed ✓
+- Android SDK command-line tools installed ✓
+- SDK licenses NOT accepted ✗
+- SDK platforms/build-tools NOT installed ✗
+
+===========================================
+STEP 1: Accept SDK Licenses
+===========================================
+
+Run this command to accept all SDK licenses:
+
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-arm64
+export ANDROID_HOME=/data/user/0/com.imtaqin.andropi/files/android-sdk
+echo "y" | /data/user/0/com.imtaqin.andropi/files/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+
+Or manually accept each license when prompted.
+
+===========================================
+STEP 2: Install SDK Components
+===========================================
+
+Run this command to install required SDK packages:
+
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-arm64
+export ANDROID_HOME=/data/user/0/com.imtaqin.andropi/files/android-sdk
+/data/user/0/com.imtaqin.andropi/files/android-sdk/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34" "build-tools;34.0.0" "platform-tools"
+
+===========================================
+STEP 3: Build the APK
+===========================================
+
+Run this command to build the debug APK:
+
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-arm64
+export ANDROID_HOME=/data/user/0/com.imtaqin.andropi/files/android-sdk
+export PATH=/data/user/0/com.imtaqin.andropi/files/home/workspace/New-Kyc/gradle-8.4/bin:$PATH
+cd /data/user/0/com.imtaqin.andropi/files/home/workspace/New-Kyc
+./gradlew assembleDebug
+
+===========================================
+STEP 4: Verify APK Output
+===========================================
+
+The APK will be located at:
+/data/user/0/com.imtaqin.andropi/files/home/workspace/New-Kyc/app/build/outputs/apk/debug/app-debug.apk
+
+===========================================
+TROUBLESHOOTING
+===========================================
+
+If you get "SDK location not found" error:
+- Ensure ANDROID_HOME points to: /data/user/0/com.imtaqin.andropi/files/android-sdk
+- Check that local.properties exists with: sdk.dir=/data/user/0/com.imtaqin.andropi/files/android-sdk
+
+If you get license errors:
+- Run sdkmanager --licenses and accept all
+- Or create file: /data/user/0/com.imtaqin.andropi/files/android-sdk/licenses/android-sdk-license
+  with content: d56f5187479451eabf01fb78af6dfb1b
+
+If build fails with kapt errors:
+- The app/build.gradle already has: id 'kotlin-kapt'
+- This should be resolved
+
+===========================================
+END OF INSTRUCTIONS
+===========================================

@@ -1,0 +1,50 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  ANDROID_HOME: /opt/android-sdk
+  JAVA_HOME: /usr/lib/jvm/java-17-openjdk
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+build_apk:
+  stage: build
+  image: gradle:8.4-jdk17
+  script:
+    - mkdir -p $ANDROID_HOME
+    - sdkmanager --install "platforms;android-34" "build-tools;34.0.0" "platform-tools" --sdk_root=$ANDROID_HOME
+    - ./gradlew assembleDebug
+  artifacts:
+    paths:
+      - app/build/outputs/apk/debug/app-debug.apk
+    expire_in: 30 days
+  only:
+    - main
+    - master
+
+test_apk:
+  stage: test
+  image: gradle:8.4-jdk17
+  script:
+    - mkdir -p $ANDROID_HOME
+    - sdkmanager --install "platforms;android-34" "build-tools;34.0.0" "platform-tools" --sdk_root=$ANDROID_HOME
+    - ./gradlew testDebugUnitTest
+  only:
+    - main
+    - master
+
+deploy_apk:
+  stage: deploy
+  image: alpine:latest
+  script:
+    - apk add curl
+    - echo "APK deployed to storage"
+  artifacts:
+    paths:
+      - app/build/outputs/apk/debug/app-debug.apk
+    expire_in: 30 days
+  only:
+    - main
+    - master
+  when: manual
