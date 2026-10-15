@@ -25,17 +25,19 @@ jobs:
       - name: set up android sdk
         uses: android-actions/setup-android@v3
 
-      - name: install sdk packages
-        run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
+      - name: install android packages
+        run: |
+          sdkmanager --install "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
-      - name: build apk
+      - name: build debug apk
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --stacktrace
 
-      - name: save apk
+      - name: upload apk
         uses: actions/upload-artifact@v4
         with:
           name: android-debug-apk
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+          retention-days: 14
