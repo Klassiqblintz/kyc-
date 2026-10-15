@@ -26,24 +26,47 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      - name: set up android sdk
-        uses: android-actions/setup-android@v3
-        with:
-          api-level: 34
-          components: >
-            cmdline-tools;latest,
-            platform-tools,
-            platforms;android-34,
-            build-tools;34.0.0
-
-      - name: accept android sdk licenses
-        run: yes | sdkmanager --licenses
-
-      - name: verify android sdk
+      - name: Prepare Android SDK environment
         run: |
-          sdkmanager --version
-          ls "$ANDROID_HOME/platforms"
-          ls "$ANDROID_HOME/build-tools"
+          echo "ANDROID_SDK_ROOT=$HOME/Android/Sdk" >> $GITHUB_ENV
+          mkdir -p "$HOME/Android/Sdk"
+
+      - name: Download and install Android command-line tools
+        env:
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
+        run: |
+          set -e
+          cd "$HOME"
+          CLT_ZIP="commandlinetools-linux-9477386_latest.zip"
+          CLT_URL="https://dl.google.com/android/repository/${CLT_ZIP}"
+          mkdir -p tmp-android-clt
+          curl -fsSL "$CLT_URL" -o "tmp-android-clt/$CLT_ZIP"
+          unzip -q "tmp-android-clt/$CLT_ZIP" -d tmp-android-clt
+          mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools/latest"
+          mv tmp-android-clt/cmdline-tools/* "$ANDROID_SDK_ROOT/cmdline-tools/latest/"
+          rm -rf tmp-android-clt
+
+      - name: Add Android tools to PATH
+        run: |
+          echo "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$ANDROID_SDK_ROOT/platform-tools" >> "$GITHUB_PATH"
+
+      - name: Install Android SDK packages
+        env:
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
+        run: |
+          set -e
+          yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --licenses
+          sdkmanager --sdk_root="$ANDROID_SDK_ROOT" "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+          sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --list
+
+      - name: Verify android sdk
+        env:
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
+        run: |
+          sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --version
+          ls "$ANDROID_SDK_ROOT/platforms" || true
+          ls "$ANDROID_SDK_ROOT/build-tools" || true
 
       - name: make gradle wrapper executable
         run: chmod +x gradlew
