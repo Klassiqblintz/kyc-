@@ -59,36 +59,17 @@ jobs:
           set -e
           yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --licenses
           sdkmanager --sdk_root="$ANDROID_SDK_ROOT" "platform-tools" "platforms;android-34" "build-tools;34.0.0"
-          sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --list
 
-      - name: Verify android sdk (quick check)
+      - name: Verify Android SDK
         env:
           ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
         run: |
           sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --version
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          ls -la "$ANDROID_SDK_ROOT" || true
           ls -la "$ANDROID_SDK_ROOT/platforms" || true
           ls -la "$ANDROID_SDK_ROOT/build-tools" || true
 
       - name: make gradle wrapper executable
         run: chmod +x gradlew
-
-      - name: Debug: print environment & dependencies
-        env:
-          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
-          ANDROID_HOME: ${{ env.ANDROID_HOME }}
-        run: |
-          echo "Java version:"
-          java -version || true
-          echo "GRADLE properties:"
-          ./gradlew -v || true
-          echo "Environment variables relevant to Android:"
-          env | egrep 'ANDROID|JAVA|JAVA_HOME' || true
-          echo "Show Android SDK root contents:"
-          ls -la "$ANDROID_SDK_ROOT" || true
-          echo "Running :app:dependencies (this helps find missing SDK/compileSdk issues)..."
-          ./gradlew :app:dependencies --configuration debugCompileClasspath --info || true
 
       - name: build debug apk
         run: ./gradlew assembleDebug --stacktrace --info
