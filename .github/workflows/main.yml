@@ -1,0 +1,41 @@
+name: build android apk
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: set up java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: set up android sdk
+        uses: android-actions/setup-android@v3
+
+      - name: install sdk packages
+        run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
+
+      - name: build apk
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: save apk
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
